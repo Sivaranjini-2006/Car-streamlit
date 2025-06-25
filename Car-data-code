@@ -1,0 +1,49 @@
+import streamlit as st
+import pandas as pd
+import os
+
+# App title and header
+st.set_page_config(page_title="🚗 Advanced Car Data Analysis", layout="wide")
+st.title("🚗 Advanced Car Data Analysis Dashboard")
+
+# File path
+file_path = "UPDATED_CAR_DATA.csv"
+
+# File existence and content check
+if not os.path.exists(file_path):
+    st.error(f"❌ File '{file_path}' not found. Please upload the CSV file.")
+elif os.path.getsize(file_path) == 0:
+    st.error(f"⚠️ File '{file_path}' is empty. Please provide valid data.")
+else:
+    try:
+        df = pd.read_csv(file_path)
+        
+        # Basic stats
+        st.subheader("📊 Dataset Overview")
+        st.dataframe(df)
+
+        st.markdown("---")
+        st.subheader("📈 Key Statistics")
+
+        col1, col2 = st.columns(2)
+        with col1:
+            st.metric("Total Cars", len(df))
+            if 'Brand' in df.columns:
+                st.metric("Unique Brands", df['Brand'].nunique())
+
+        with col2:
+            if 'Price' in df.columns:
+                st.metric("Average Price ($)", f"{df['Price'].mean():,.2f}")
+            if 'Mileage' in df.columns:
+                st.metric("Average Mileage", f"{df['Mileage'].mean():,.2f}")
+
+        # Optional: Visualization placeholder
+        st.markdown("---")
+        st.subheader("📉 More Analysis Coming Soon...")
+    
+    except pd.errors.EmptyDataError:
+        st.error("❌ The file is empty or not properly formatted.")
+    except pd.errors.ParserError:
+        st.error("❌ Could not parse the file. Please check the CSV formatting.")
+    except Exception as e:
+        st.error(f"❌ An unexpected error occurred: {str(e)}")
